@@ -1,4 +1,5 @@
 from general import *
+from urllib.parse import urlparse
 
 
 class Spider:
@@ -20,5 +21,21 @@ class Spider:
 
     def crawl(self):
         if self.url not in Spider.crawled_set:
+            self.add_urls_to_queue()
+            Spider.queued_set.remove(self.url)
+            Spider.crawled_set.add(self.url)
+            Spider.update_files()
 
+    def add_urls_to_queue(self):
+        urls = get_links_from_page(self.url)
+        for url in urls:
+            if urlparse(url).hostname != self.domain:
+                continue
+            if url in Spider.queued_set or url in Spider.crawled_set:
+                continue
+            Spider.queued_set.add(url)
 
+    @staticmethod
+    def update_files():
+        set_to_file(Spider.crawled_set, CRAWLED_FILE)
+        set_to_file(Spider.queued_set, QUEUE_FILE)
