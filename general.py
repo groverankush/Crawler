@@ -14,7 +14,7 @@ def create_project(domain_name):
     global PROJECT_NAME
 
     PROJECT_NAME = domain_name.replace(".", "_")
-    if not os.path.exists(PROJECT_NAME):
+    if not os.path.isdir(os.path.join(os.getcwd(), PROJECT_NAME)):
         print("Creating project " + PROJECT_NAME)
         os.mkdir(PROJECT_NAME)
 
@@ -22,8 +22,6 @@ def create_project(domain_name):
 # Create Queue and crawled files (if not created)
 def create_data_files(base_url):
     assert os.path.exists(PROJECT_NAME)
-
-    os.chdir(PROJECT_NAME)
 
     if not os.path.exists(QUEUE_FILE):
         write_file(QUEUE_FILE, base_url, append=False)
@@ -33,16 +31,18 @@ def create_data_files(base_url):
 
 # Method to create file and add data to it.
 def write_file(path, data="", append=True, delete=False):
+    path = os.path.join(os.getcwd(), PROJECT_NAME, path)
     if delete:
         with open(path, 'w'):
             return
     with open(path, 'a' if append else 'w') as f:
-        f.writelines(data)
+        f.write(data + "\n")
 
 
 # Read a file and convert it to a set.
 def file_to_set(file_name):
     results = set()
+    file_name = os.path.join(os.getcwd(), PROJECT_NAME, file_name)
     with open(file_name, 'rt') as f:
         for line in f:
             results.add(line.strip())
